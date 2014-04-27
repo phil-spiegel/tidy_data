@@ -14,16 +14,14 @@ df_subtest <- read.table("subject_test.txt")
 df_feature <- read.table("features.txt")
 df_activity <- read.table("activity_labels.txt")
 
-#section 2 - add activity name to Y data
-df_ytest <- arrange(join(df_ytest,df_activity),V1)
-df_ytrain <- arrange(join(df_ytrain,df_activity),V1)
-
 #section 3 - renaming columns 
 #rename y and subject sets to avoid ambiguity when they merge
 df_ytest <- rename(df_ytest, c("V1"="Activity","V2"="Activity_Name"))
 df_ytrain <- rename(df_ytrain, c("V1"="Activity","V2"="Activity_Name"))
 df_subtest <- rename(df_subtest, c("V1"="Subject"))
 df_subtrain <- rename(df_subtrain, c("V1"="Subject"))
+df_activity <- rename(df_activity, c("V1"="Activity","V2"="ActivityName"))
+
 
 #rename x to subset on feature names
 setnames(df_xtest, old=colnames(df_xtest),new = as.vector(df_feature$V2))
@@ -41,10 +39,15 @@ dfm_train <- cbind(df_subtrain,df_ytrain,df_xtrain)
 dfm_final <- rbind(dfm_test, dfm_train)
 
 #section 7 - collapse data frame into tidy set by taking averages
-df_tidy <- aggregate(dfm_final[,4:69], by=list(dfm_final$Subject, dfm_final$Activity), FUN = mean)
+df_tidy <- aggregate(dfm_final[,3:68], by=list(dfm_final$Subject, dfm_final$Activity), FUN = mean)
 
 #rename the Group fields created by aggregate
-df_tidy <- rename(df_tidy, c("Group.1"="Subject","Group.2"="ActivityNumber","Group.3"="ActivityName"))
+df_tidy <- rename(df_tidy, c("Group.1"="Subject","Group.2"="Activity"))
+
+#add activity name
+merge(x = df_tidy, y = df_activity, by = "Activity", all=TRUE)
 
 #section 8 - output tidy data set
 write.table(df_tidy,"tidy_data.txt",sep=",")
+
+
