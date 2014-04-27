@@ -45,9 +45,15 @@ df_tidy <- aggregate(dfm_final[,3:68], by=list(dfm_final$Subject, dfm_final$Acti
 df_tidy <- rename(df_tidy, c("Group.1"="Subject","Group.2"="Activity"))
 
 #add activity name
-merge(x = df_tidy, y = df_activity, by = "Activity", all=TRUE)
+df_tidy <- merge(x = df_tidy, y = df_activity, by = "Activity", all=TRUE)
+
+#move activity name to an earlier variable
+df_tidy <- cbind(df_tidy$Subject,df_tidy$Activity,df_tidy$ActivityName,df_tidy[,3:68])
+
+#one last column name cleanup
+df_tidy <- rename(df_tidy, c("df_tidy$Subject"="Subject","df_tidy$Activity"="ActivityNumber","df_tidy$ActivityName"="ActivityName"))
 
 #section 8 - output tidy data set
-write.table(df_tidy,"tidy_data.txt",sep=",")
+write.table(df_tidy,"tidy_data.txt",sep="\t")
 
 
